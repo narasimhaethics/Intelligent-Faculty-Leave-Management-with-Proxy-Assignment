@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from config import Config
-from models import db, User, LeaveRequest, ProxyAssignment
+from models import db, Users, LeaveRequests, ProxyAssignment
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -12,7 +12,7 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return Users.query.get(int(user_id))
 
 @app.route('/')
 def home():
@@ -22,7 +22,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        user = Users.query.filter_by(username=username).first()
         if user and user.password == password:
             login_user(user)
             return redirect(url_for('faculty_dashboard' if user.role == 'faculty' else 'admin_dashboard'))
@@ -45,7 +45,7 @@ def leave_request():
     if request.method == 'POST':
         start_date = request.form['start_date']
         end_date = request.form['end_date']
-        leave_request = LeaveRequest(
+        leave_request = LeaveRequests(
             user_id=current_user.id,
             start_date=datetime.strptime(start_date, '%Y-%m-%d'),
             end_date=datetime.strptime(end_date, '%Y-%m-%d')
@@ -61,7 +61,7 @@ def leave_request():
 def admin_dashboard():
     if current_user.role != 'admin':
         return redirect(url_for('faculty_dashboard'))
-    leave_requests = LeaveRequest.query.all()
+    leave_requests = LeaveRequests.query.all()
     return render_template('admin_dashboard.html', leave_requests=leave_requests)
 
 if __name__ == '__main__':

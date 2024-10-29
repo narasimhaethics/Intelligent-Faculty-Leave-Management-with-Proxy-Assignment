@@ -4,13 +4,13 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-class User(UserMixin, db.Model):
+class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(150), nullable=False)
     role = db.Column(db.String(50))  # faculty or admin
 
-class LeaveRequest(db.Model):
+class LeaveRequests(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     start_date = db.Column(db.Date, nullable=False)
