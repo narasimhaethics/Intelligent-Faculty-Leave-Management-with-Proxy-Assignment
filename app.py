@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from config import Config
 from models import db, Users, LeaveRequests, ProxyAssignment
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -34,7 +35,7 @@ def login():
 def faculty_dashboard():
     if current_user.role != 'faculty':
         return redirect(url_for('admin_dashboard'))
-    leave_requests = LeaveRequest.query.filter_by(user_id=current_user.id).all()
+    leave_requests = LeaveRequests.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard.html', leave_requests=leave_requests)
 
 @app.route('/leave_request', methods=['GET', 'POST'])
