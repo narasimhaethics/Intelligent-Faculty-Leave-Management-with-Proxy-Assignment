@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+<h2>Pending Leave Requests</h2>
+<ul>
+    {% for request in leave_requests %}
+        <li>
+            {{ request.start_date }} to {{ request.end_date }} - 
+            Requested by: {{ request.user_id }} - 
+            Status: {{ request.status }}
+            <a href="#">Approve</a> | <a href="#">Reject</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

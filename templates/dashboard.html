@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Faculty Dashboard</h1>
+<a href="{{ url_for('leave_request') }}">Request Leave</a>
+<h2>Your Leave Requests</h2>
+<ul>
+    {% for request in leave_requests %}
+        <li>{{ request.start_date }} to {{ request.end_date }} - Status: {{ request.status }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
