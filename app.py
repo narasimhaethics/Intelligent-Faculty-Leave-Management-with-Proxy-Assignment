@@ -63,7 +63,12 @@ def admin_dashboard():
         return redirect(url_for('faculty_dashboard'))
     leave_requests = LeaveRequests.query.all()
     return render_template('admin_dashboard.html', leave_requests=leave_requests)
-
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.", "success")
+    return redirect(url_for('home'))
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Initialize the database

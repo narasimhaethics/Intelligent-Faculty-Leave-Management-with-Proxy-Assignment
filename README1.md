@@ -13,7 +13,7 @@ You can run the application in one of the following ways:
 1. Press `F5`. This will start the application in debug mode.
 
 2. Open a terminal by going to 'View' -> 'Terminal'. Then, run following command: 
-   > `flask --app app.py run --host=0.0.0.0 --port=5000 --debug`
+   > `flask --app app.py run -host=0.0.0.0 --port=5000 --debug`
 
 This will start the application in development mode.
 
