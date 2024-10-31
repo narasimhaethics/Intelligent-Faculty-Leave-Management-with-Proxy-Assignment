@@ -56,27 +56,41 @@ Faculty and administrators have basic digital literacy.
 
 ## 3. System Features
 ### 3.1 Leave Application and Approval
-Description: Allows faculty members to apply for leave by selecting dates and providing reasons.
-Inputs: Leave type, dates, reason.
-Outputs: Leave request status (approved, pending, rejected), proxy assignments.
+Description: Allows faculty members to apply for leave by selecting dates and providing reasons.<br />
+Inputs: Leave type, dates, reason.<br />
+Outputs: Leave request status (approved, pending, rejected), proxy assignments.<br />
 Dependencies: User authentication and role verification.
 ### 3.2 Proxy Assignment Automation
-Description: Automatically assigns proxies for faculty on leave.
-Inputs: Leave date, faculty details, class schedule.
-Outputs: Proxy details for each scheduled class.
-Dependencies: Class scheduling data and faculty availability information.
+Description: Automatically assigns proxies for faculty on leave.<br />
+Inputs: Leave date, faculty details, class schedule.<br />
+Outputs: Proxy details for each scheduled class.<br />
+Dependencies: Class scheduling data and faculty availability information.<br />
 ### 3.3 Leave Analytics and Reporting
-Description: Analyzes historical leave data to identify trends.
-Inputs: Historical leave records.
-Outputs: Trend reports, predictive analytics for upcoming periods.
+Description: Analyzes historical leave data to identify trends.<br />
+Inputs: Historical leave records.<br />
+Outputs: Trend reports, predictive analytics for upcoming periods.<br />
 Dependencies: Data accuracy and historical records.
 ### 3.4 Notifications and Alerts
-Description: Notifies relevant users of leave status and proxy assignments.
-Inputs: Leave application, approval/rejection status.
-Outputs: Notification via email or SMS to faculty, proxies, and administrators.
+Description: Notifies relevant users of leave status and proxy assignments.<br />
+Inputs: Leave application, approval/rejection status.<br />
+Outputs: Notification via email or SMS to faculty, proxies, and administrators.<br />
 Dependencies: Reliable communication API for sending notifications.
 ### 3.5 Real-time Communication
-Description: Facilitates messaging between faculty and administrators.
-Inputs: User messages.
-Outputs: Message history between faculty and administrators.
+Description: Facilitates messaging between faculty and administrators.<br />
+Inputs: User messages.<br />
+Outputs: Message history between faculty and administrators.<br />
 Dependencies: Secure web sockets or similar real-time messaging protocol.
+
+
+## 4. External Interface Requirements
+### 4.1 User Interfaces
+Faculty Dashboard: Shows leave application form, leave history, and assigned proxies.<br />
+Admin Dashboard: Displays all leave requests, leave status, and analytics reports.<br />
+### 4.2 Hardware Interfaces
+No specific hardware interfaces required beyond typical PC/mobile device capabilities.
+### 4.3 Software Interfaces
+Integration with institutional scheduling software.<br />
+Notification APIs (e.g., SMTP for email, Twilio for SMS).
+### 4.4 Communication Interfaces
+Supports HTTPS for secure data transmission.<br />
+Uses WebSockets for real-time communication.
