@@ -2,3 +2,49 @@
 
 
 "Intelligent Faculty Leave Management with Proxy Assignment: A Comprehensive System Approach Using Web Technology" offers an advanced framework intended to simplify faculty leave management while maintaining academic obligations. The system uses web technologies to automate leave requests and approvals, combine data analytics to forecast leave trends, and enable academics and administration to communicate in real time. This clever strategy not only improves leave administration's effectiveness and openness but also tackles prevalent issues like human errors and poor communication. Incorporating user-friendly interfaces also seeks to enhance teacher satisfaction and user experience, which will ultimately result in a more productive learning environment.
+
+## 1. Introduction
+### 1.1 Purpose
+The purpose of this SRS document is to outline the functional and non-functional requirements for the "Intelligent Faculty Leave Management with Proxy Assignment" system. This system aims to simplify and streamline the leave management process for faculty members in academic institutions. It seeks to enhance efficiency, transparency, and user satisfaction by incorporating data analytics, real-time communication, and user-friendly web interfaces.
+
+### 1.2 Scope
+The Intelligent Faculty Leave Management with Proxy Assignment system is designed for academic institutions to manage faculty leave requests and approvals efficiently. It automates various tasks, such as leave forecasting, proxy assignment for classes, and communication between faculty and administrators. The system also generates insights from leave data to predict trends and improve decision-making. It reduces human error and enhances communication, leading to an improved academic environment.
+
+### 1.3 Definitions, Acronyms, and Abbreviations
+Admin: Refers to the administrator of the system.
+Faculty: Academic staff members using the system to manage leave requests.
+Proxy: A substitute assigned to cover the classes of a faculty member on leave.
+### 1.4 References
+Institution guidelines for leave policies and proxy assignment.
+Research papers and articles on leave management and data analytics.
+
+## 2. Overall Description
+### 2.1 Product Perspective
+This system is a web-based solution that integrates with an institution's existing management infrastructure. It is intended to replace traditional, paper-based leave processes and inefficient manual proxy assignments with an automated, analytics-driven platform.
+
+### 2.2 Product Functions
+The main functions of the system include:
+
+##### Leave Application Management: 
+Allows faculty to submit leave requests and administrators to approve or reject them.
+##### Proxy Assignment: 
+Assigns a substitute teacher for each class missed due to leave.
+##### Data Analytics: 
+Analyzes leave trends to forecast potential leave patterns.
+##### Notifications: Sends notifications to faculty, proxies, and administrators regarding leave status and proxy assignments.
+Reports: Generates reports on leave trends, approval times, and faculty leave records.
+Real-time Communication: Facilitates communication between faculty and administrators regarding leave and proxy management.
+### 2.3 User Classes and Characteristics
+Faculty: Can apply for leave, view leave status, receive proxy assignments, and communicate with administration.
+Administrator: Approves/rejects leave requests, manages proxy assignments, generates reports, and communicates with faculty.
+### 2.4 Operating Environment
+Server-side: Linux/Windows with PHP, Python, or Node.js backend.
+Client-side: Compatible with modern browsers (Chrome, Firefox, Safari).
+Database: MySQL/PostgreSQL.
+Network: Requires a stable internet connection for real-time updates.
+### 2.5 Design and Implementation Constraints
+Compliance with institutional policies on data security and privacy.
+Scalable infrastructure to handle peak load during critical periods (e.g., start of term, holidays).
+### 2.6 Assumptions and Dependencies
+The institution has an internet connection and compatible hardware for web applications.
+Faculty and administrators have basic digital literacy.
