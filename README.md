@@ -52,3 +52,31 @@ Scalable infrastructure to handle peak load during critical periods (e.g., start
 ### 2.6 Assumptions and Dependencies
 The institution has an internet connection and compatible hardware for web applications.<br />
 Faculty and administrators have basic digital literacy.
+
+
+## 3. System Features
+### 3.1 Leave Application and Approval
+Description: Allows faculty members to apply for leave by selecting dates and providing reasons.
+Inputs: Leave type, dates, reason.
+Outputs: Leave request status (approved, pending, rejected), proxy assignments.
+Dependencies: User authentication and role verification.
+### 3.2 Proxy Assignment Automation
+Description: Automatically assigns proxies for faculty on leave.
+Inputs: Leave date, faculty details, class schedule.
+Outputs: Proxy details for each scheduled class.
+Dependencies: Class scheduling data and faculty availability information.
+### 3.3 Leave Analytics and Reporting
+Description: Analyzes historical leave data to identify trends.
+Inputs: Historical leave records.
+Outputs: Trend reports, predictive analytics for upcoming periods.
+Dependencies: Data accuracy and historical records.
+### 3.4 Notifications and Alerts
+Description: Notifies relevant users of leave status and proxy assignments.
+Inputs: Leave application, approval/rejection status.
+Outputs: Notification via email or SMS to faculty, proxies, and administrators.
+Dependencies: Reliable communication API for sending notifications.
+### 3.5 Real-time Communication
+Description: Facilitates messaging between faculty and administrators.
+Inputs: User messages.
+Outputs: Message history between faculty and administrators.
+Dependencies: Secure web sockets or similar real-time messaging protocol.
