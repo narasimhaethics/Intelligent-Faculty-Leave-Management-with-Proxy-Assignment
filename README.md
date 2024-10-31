@@ -3,9 +3,10 @@
 
 "Intelligent Faculty Leave Management with Proxy Assignment: A Comprehensive System Approach Using Web Technology" offers an advanced framework intended to simplify faculty leave management while maintaining academic obligations. The system uses web technologies to automate leave requests and approvals, combine data analytics to forecast leave trends, and enable academics and administration to communicate in real time. This clever strategy not only improves leave administration's effectiveness and openness but also tackles prevalent issues like human errors and poor communication. Incorporating user-friendly interfaces also seeks to enhance teacher satisfaction and user experience, which will ultimately result in a more productive learning environment.
 
+# Software Requirement Specification(SRS) 
 ## 1. Introduction
 ### 1.1 Purpose
-The purpose of this SRS document is to outline the functional and non-functional requirements for the "Intelligent Faculty Leave Management with Proxy Assignment" system. This system aims to simplify and streamline the leave management process for faculty members in academic institutions. It seeks to enhance efficiency, transparency, and user satisfaction by incorporating data analytics, real-time communication, and user-friendly web interfaces.
+The purpose of this SRS is to outline the functional and non-functional requirements for the "Intelligent Faculty Leave Management with Proxy Assignment" system. This system aims to simplify and streamline the leave management process for faculty members in academic institutions. It seeks to enhance efficiency, transparency, and user satisfaction by incorporating data analytics, real-time communication, and user-friendly web interfaces.
 
 ### 1.2 Scope
 The Intelligent Faculty Leave Management with Proxy Assignment system is designed for academic institutions to manage faculty leave requests and approvals efficiently. It automates various tasks, such as leave forecasting, proxy assignment for classes, and communication between faculty and administrators. The system also generates insights from leave data to predict trends and improve decision-making. It reduces human error and enhances communication, leading to an improved academic environment.
@@ -94,3 +95,22 @@ Notification APIs (e.g., SMTP for email, Twilio for SMS).
 ### 4.4 Communication Interfaces
 Supports HTTPS for secure data transmission.<br />
 Uses WebSockets for real-time communication.
+
+## 5. Non-functional Requirements
+### 5.1 Performance Requirements
+The system should handle up to 500 concurrent users with minimal latency.<br />
+Leave requests and approvals should be processed within 2 seconds.
+### 5.2 Security Requirements
+Role-based access control to restrict functionalities based on user roles.<br />
+Data encryption for sensitive information (e.g., user credentials).
+### 5.3 Usability Requirements
+Simple and intuitive interface for faculty with minimal training required.<br />
+Accessible design to accommodate users with varying levels of digital literacy.
+### 5.4 Reliability Requirements
+The system should have an uptime of 99.5% or higher.<br />
+Backup protocols must be in place to prevent data loss.
+
+## 6. Other Requirements
+Scalability: The system should be able to scale to accommodate a growing number of users.<br />
+Compliance: Adherence to institutional data privacy and protection policies.
+
