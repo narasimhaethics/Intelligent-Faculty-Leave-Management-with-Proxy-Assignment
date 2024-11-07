@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Add Faculty</h2>
+    <form method="POST" action="{{ url_for('add_faculty') }}">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="fname">First Name</label>
+                <input type="text" class="form-control" id="fname" name="fname" required>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="lname">Last Name</label>
+                <input type="text" class="form-control" id="lname" name="lname" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="emailid">Email</label>
+            <input type="email" class="form-control" id="emailid" name="emailid" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+
+        <!-- Program Selection -->
+        <div class="form-group">
+            <label for="program">Program</label>
+            <select class="form-control" id="program" name="program" required onchange="updateCourseOptions()">
+                <option value="">Select Program</option>
+                <option value="B.Tech">B.Tech</option>
+                <option value="BCA">BCA</option>
+                <option value="MCA">MCA</option>
+            </select>
+        </div>
+
+        <!-- Course Selection -->
+        <div class="form-group">
+            <label for="course">Course</label>
+            <select class="form-control" id="course" name="course" required>
+                <option value="">Select Course</option>
+            </select>
+        </div>
+
+        <!-- Semester Selection -->
+        <div class="form-group">
+            <label for="semester">Semester</label>
+            <input type="number" class="form-control" id="semester" name="semester" min="1" max="8" required>
+        </div>
+
+        <div class="form-group">
+            <label for="subject_allocated">Subject Allocated</label>
+            <input type="text" class="form-control" id="subject_allocated" name="subject_allocated" required>
+        </div>
+        <div class="form-group">
+            <label for="academic_year">Academic Year</label>
+            <input type="text" class="form-control" id="academic_year" name="academic_year" placeholder="e.g., 2024-2025" required>
+        </div>
+        <button type="submit" class="btn btn-success btn-block">Add Faculty</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <div class="mt-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</div>
+
+<script>
+    // JavaScript to update Course options based on selected Program
+    function updateCourseOptions() {
+        const program = document.getElementById("program").value;
+        const courseSelect = document.getElementById("course");
+
+        // Clear existing options
+        courseSelect.innerHTML = '<option value="">Select Course</option>';
+
+        if (program === "B.Tech") {
+            courseSelect.innerHTML += '<option value="CSE">CSE</option>';
+            courseSelect.innerHTML += '<option value="IT">IT</option>';
+        } else if (program === "BCA") {
+            courseSelect.innerHTML += '<option value="General">General</option>';
+        } else if (program === "MCA") {
+            courseSelect.innerHTML += '<option value="Software Engineering">Software Engineering</option>';
+            courseSelect.innerHTML += '<option value="Data Science">Data Science</option>';
+        }
+    }
+</script>
+{% endblock %}

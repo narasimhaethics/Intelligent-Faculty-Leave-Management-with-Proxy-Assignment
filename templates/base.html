@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,8 +26,19 @@
                             <a class="nav-link" href="{{ url_for('leave_request') }}">Request Leave</a>
                         </li>
                     {% elif current_user.role == 'admin' %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                        <!-- Admin Dashboard Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDashboardDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Admin operations
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="adminDashboardDropdown">
+                                <a class="dropdown-item" href="{{ url_for('add_faculty') }}">Add Faculty</a>
+                                <a class="dropdown-item" href="{{ url_for('allocate_subject') }}">Allocate Subject</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ url_for('view_faculty_details') }}">View Faculty Details</a>
+                                <a class="dropdown-item" href="{{ url_for('faculty_timetable') }}">Faculty Timetable</a>
+                                <a class="dropdown-item" href="{{ url_for('leave_request') }}">Leave Requests</a>
+                            </div>
                         </li>
                     {% endif %}
                     <li class="nav-item">
