@@ -68,11 +68,11 @@ class LeaveRequest(db.Model):
     faculty_id = db.Column(db.Integer, db.ForeignKey('faculty_details.id'), nullable=False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
-    dates = db.Column(db.JSON, nullable=False)  # JSON to store dates and weekdays
-    status = db.Column(db.String(20), default="Pending")  # Options: "Pending", "Approved", "Rejected"
-    reason = db.Column(db.String(200), nullable=True)
+    leave_date = db.Column(db.Date, nullable=False)
+    weekday = db.Column(db.String(20), nullable=False)
+    status = db.Column(db.String(20), default="Pending")  # "Pending", "Approved", "Rejected"
 
     faculty = db.relationship('FacultyDetails', backref='leave_requests', lazy=True)
 
     def __repr__(self):
-        return f"<LeaveRequest Faculty: {self.faculty_id}, Status: {self.status}>"
+        return f"<LeaveRequest {self.faculty_id} - {self.leave_date}: {self.status}>"

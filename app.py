@@ -86,12 +86,7 @@ def change_password():
     
     return render_template('change_password.html')
 
-@app.route('/track_application')
-@login_required
-def track_application():
-    # Get all leave requests for the current user
-    leave_requests = LeaveRequest.query.filter_by(faculty_id=current_user.id).order_by(LeaveRequest.start_date.desc()).all()
-    return render_template('track_application.html', leave_requests=leave_requests)
+
 
 @app.route('/leave_history')
 @login_required
@@ -100,100 +95,70 @@ def leave_history():
     leave_requests = LeaveRequest.query.filter_by(faculty_id=current_user.id).order_by(LeaveRequest.start_date.desc()).all()
     return render_template('leave_history.html', leave_requests=leave_requests)
 
+@app.route('/apply_leave', methods=['GET', 'POST'])
+def apply_leave():
+    faculty = FacultyDetails.query.filter_by(user_id=current_user.id).first()
 
-@app.route('/leave_request', methods=['GET', 'POST'])
-@login_required
-def leave_request():
     if request.method == 'POST':
-        faculty_id = request.form.get('faculty_id')
-        start_date = request.form.get('start_date')
-        end_date = request.form.get('end_date')
-        
-        if not (faculty_id and start_date and end_date):
-            flash('All fields are required', 'danger')
-            return redirect(url_for('leave_request'))
+        start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
+        end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
+        faculty_id = request.form['faculty_id']
 
-        # Process dates to include weekdays
-        start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
-        date_list = []
+        leave_requests = []
+        while start_date <= end_date:
+            leave_requests.append(LeaveRequest(
+                faculty_id=faculty_id,
+                start_date=start_date,
+                end_date=end_date,
+                leave_date=start_date,
+                weekday=start_date.strftime('%A'),
+                status='Pending'
+            ))
+            start_date += timedelta(days=1)
 
-        current_date = start_date_obj
-        while current_date <= end_date_obj:
-            date_list.append({
-                'date': current_date.strftime('%Y-%m-%d'),
-                'weekday': current_date.strftime('%A')
-            })
-            current_date += timedelta(days=1)
-
-        # Create new leave request
-        leave_request = LeaveRequest(
-            faculty_id=faculty_id,
-            start_date=start_date,
-            end_date=end_date,
-            dates=date_list,
-            status='Pending'
-        )
-        db.session.add(leave_request)
+        db.session.add_all(leave_requests)
         db.session.commit()
-        flash('Leave request submitted successfully', 'success')
-        return redirect(url_for('faculty_dashboard'))  # Redirect to faculty dashboard or other page
+        flash('Leave request submitted successfully!', 'success')
+        return redirect(url_for('track_application'))
 
-    # If GET request, render form with faculty data
-    faculty_id = 2  # Replace with current faculty's ID or query from session
-    faculty = FacultyDetails.query.get(faculty_id)
-    return render_template('leave_request.html', faculty=faculty)
+    return render_template('apply_leave.html', faculty=faculty)
 
-@app.route('/get_dates')
-def get_dates():
-    start_date_str = request.args.get('start_date')
-    end_date_str = request.args.get('end_date')
 
-    start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
-    dates = []
+@app.route('/track_application')
+@login_required
+def track_application():
+    # Query that joins LeaveRequest, FacultyDetails, and Users based on current_user.id
+    leave_requests = (
+        db.session.query(LeaveRequest, FacultyDetails, Users)
+        .join(FacultyDetails, LeaveRequest.faculty_id == FacultyDetails.id)
+        .join(Users, FacultyDetails.user_id == Users.id)
+        .filter(Users.id == current_user.id)
+        .all()
+    )
 
-    current_date = start_date
-    while current_date <= end_date:
-        dates.append({
-            'date': current_date.strftime('%Y-%m-%d'),
-            'weekday': current_date.strftime('%A')
+    # Prepare a list of dictionaries for easy template rendering
+    leave_data = []
+    for leave_request, faculty, user in leave_requests:
+        leave_data.append({
+            "faculty_name": f"{user.fname} {user.lname}",
+            "email": user.emailid,
+            "program": faculty.program,
+            "course": faculty.course,
+            "semester": faculty.semester,
+            "subject_allocated": faculty.subject_allocated,
+            "academic_year": faculty.academic_year,
+            "leave_date": leave_request.leave_date,
+            "weekday": leave_request.weekday,
+            "status": leave_request.status,
+            "start_date": leave_request.start_date,
+            "end_date": leave_request.end_date
         })
-        current_date += timedelta(days=1)
+    print(leave_data)
+    return render_template('track_application.html', leave_data=leave_data)
 
-    return jsonify({'dates': dates})
 
 
-@app.route('/admin/leave_requests', methods=['GET', 'POST'])
-@login_required
-def admin_leave_requests():
-    leave_requests = LeaveRequest.query.filter_by(status="Pending").all()
 
-    if request.method == 'POST':
-        leave_request_id = request.form['leave_request_id']
-        action = request.form['action']  # 'approve' or 'reject'
-
-        # Fetch the leave request to update
-        leave_request = LeaveRequest.query.get(leave_request_id)
-
-        # Check faculty availability if approving the request
-        if action == 'approve':
-            faculty_timetable = FacultyTimetable.query.filter_by(faculty_id=leave_request.faculty_id).all()
-            conflicts = check_timetable_conflicts(faculty_timetable, leave_request.dates)
-
-            if conflicts:
-                flash("Cannot approve leave request; conflicting time slots found.", "danger")
-            else:
-                leave_request.status = "Approved"
-                flash("Leave request approved successfully!", "success")
-        else:
-            leave_request.status = "Rejected"
-            flash("Leave request rejected.", "warning")
-
-        db.session.commit()
-        return redirect(url_for('admin_leave_requests'))
-
-    return render_template('admin_leave_requests.html', leave_requests=leave_requests)
 
 @app.route('/admin_dashboard')
 @login_required

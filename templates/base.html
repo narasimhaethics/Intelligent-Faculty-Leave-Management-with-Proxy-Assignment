@@ -19,7 +19,9 @@
                 </li>
                 {% if current_user.is_authenticated %}
                     {% if current_user.role == 'faculty' %}
-                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('faculty_dashboard') }}">Dashboard</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('change_password') }}">Change Password</a>
                     </li>
@@ -37,7 +39,7 @@
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ url_for('view_faculty_details') }}">View Faculty Details</a>
                                 <a class="dropdown-item" href="{{ url_for('faculty_timetable') }}">Faculty Timetable</a>
-                                <a class="dropdown-item" href="{{ url_for('leave_request') }}">Leave Requests</a>
+                                <a class="dropdown-item" href="{{ url_for('apply_leave') }}">Leave Requests</a>
                             </div>
                         </li>
                     {% endif %}

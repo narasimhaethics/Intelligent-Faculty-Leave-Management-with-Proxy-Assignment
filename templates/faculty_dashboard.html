@@ -19,7 +19,7 @@
                     <p><strong>Academic Year:</strong> {{ faculty.academic_year }}</p>
                 </div>
                 <div class="card-footer text-center">
-                    <a href="{{ url_for('leave_request') }}" class="btn btn-success btn-sm">Apply for Leave</a>
+                    <a href="{{ url_for('apply_leave') }}" class="btn btn-success btn-sm">Apply for Leave</a>
                     <a href="{{ url_for('track_application') }}" class="btn btn-info btn-sm">Track Application</a>
                     <a href="{{ url_for('leave_history') }}" class="btn btn-secondary btn-sm">Leave History</a>
                     <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#timetableModal">View Timetable</button>

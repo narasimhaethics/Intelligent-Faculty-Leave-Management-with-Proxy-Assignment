@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3>Track Application</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <!---th>Faculty Name</th>
+                    <th>Email</th>
+                    <th>Program</th>
+                    <th>Course</th>
+                    <th>Semester</th>
+                    <th>Subject Allocated</th>
+                    <th>Academic Year</th-->
+                    <th>Leave Date</th>
+                    <th>Weekday</th>
+                    <th>Status</th>
+                    <!--th>Start Date</th>
+                    <th>End Date</th-->
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in leave_data %}
+                <tr>
+                    <!--td>{{ request.faculty_name }}</td>
+                    <td>{{ request.email }}</td>
+                    <td>{{ request.program }}</td>
+                    <td>{{ request.course }}</td>
+                    <td>{{ request.semester }}</td>
+                    <td>{{ request.subject_allocated }}</td>
+                    <td>{{ request.academic_year }}</td-->
+                    <td>{{ request.leave_date }}</td>
+                    <td>{{ request.weekday }}</td>
+                    <td>{{ request.status }}</td>
+                    <!--td>{{ request.start_date }}</td>
+                    <td>{{ request.end_date }}</td-->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

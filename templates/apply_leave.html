@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3>Apply for Leave</h3>
+    <form id="leaveForm" method="POST" action="{{ url_for('apply_leave') }}">
+        <input type="hidden" name="faculty_id" value="{{ faculty.id }}">
+
+        <div class="form-group">
+            <label for="start_date">Start Date</label>
+            <input type="date" id="start_date" name="start_date" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="end_date">End Date</label>
+            <input type="date" id="end_date" name="end_date" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<!-- Modal for confirmation -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirm Leave Dates</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="leaveDatesList" class="list-group"></ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="confirmLeave">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('leaveForm').onsubmit = function(event) {
+    event.preventDefault();
+    const startDate = new Date(document.getElementById('start_date').value);
+    const endDate = new Date(document.getElementById('end_date').value);
+    const leaveDatesList = document.getElementById('leaveDatesList');
+    leaveDatesList.innerHTML = '';
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+        let day = days[date.getDay()];
+        leaveDatesList.innerHTML += `<li class="list-group-item">${date.toDateString()} - ${day}</li>`;
+    }
+
+    $('#confirmationModal').modal('show');
+};
+
+document.getElementById('confirmLeave').onclick = function() {
+    document.getElementById('leaveForm').submit();
+};
+</script>
+{% endblock %}
