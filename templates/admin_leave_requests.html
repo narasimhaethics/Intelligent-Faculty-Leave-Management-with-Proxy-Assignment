@@ -2,23 +2,89 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Leave Requests</h2>
+    <h3>Leave Requests</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Faculty Name</th>
+                    <th>Program</th>
+                    <th>Course</th>
+                    <th>Leave Dates</th>
+                    <th>Weekdays</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for leave_request, faculty, user in leave_requests %}
+                <tr>
+                    <td>{{ user.fname }} {{ user.lname }}</td>
+                    <td>{{ faculty.program }}</td>
+                    <td>{{ faculty.course }}</td>
+                    <td>{{ leave_request.start_date }} - {{ leave_request.end_date }}</td>
+                    <td>{{ leave_request.weekday }}</td>
+                    <td>{{ leave_request.status }}</td>
+                    <td>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#proxyModal{{ leave_request.id }}">View</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-    {% for request in leave_requests %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">{{ request.faculty.user.fname }} {{ request.faculty.user.lname }}</h5>
-            <p class="card-text">Requested From: {{ request.start_date }} To: {{ request.end_date }}</p>
-            <p class="card-text">Status: {{ request.status }}</p>
-            <p class="card-text">Reason: {{ request.reason }}</p>
-            
-            <form method="POST">
-                <input type="hidden" name="leave_request_id" value="{{ request.id }}">
-                <button name="action" value="approve" class="btn btn-success">Approve</button>
-                <button name="action" value="reject" class="btn btn-danger">Reject</button>
-            </form>
+{% for leave_request, faculty, user in leave_requests %}
+<div class="modal fade" id="proxyModal{{ leave_request.id }}" tabindex="-1" role="dialog" aria-labelledby="proxyModalLabel{{ leave_request.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assign Proxy for {{ user.fname }} {{ user.lname }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6>Faculty Timetable for Leave Days</h6>
+                <form action="{{ url_for('assign_proxy', leave_id=leave_request.id) }}" method="post">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Slot</th>
+                                <th>Select Proxy Faculty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in leave_request.weekday.split(',') %}
+                                <tr>
+                                    <td rowspan="6">{{ day }}</td>
+                                    {% for slot in ['slot_1', 'slot_2', 'slot_3', 'slot_4', 'slot_5', 'slot_6'] %}
+                                        <td>{{ slot }}</td>
+                                        <td>
+                                            {% with available_faculties=get_available_faculties(day, slot) %}
+                                                <select class="form-control" name="proxy_{{ day }}_{{ slot }}">
+                                                    <option value="">Select Proxy</option>
+                                                    {% for faculty in available_faculties %}
+                                                        <option value="{{ faculty.id }}">{{ faculty.fname }} {{ faculty.lname }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            {% endwith %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="modal-footer">
+                        <button type="submit" name="action" value="approve" class="btn btn-success">Confirm Proxies & Approve Leave</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-    {% endfor %}
 </div>
+{% endfor %}
 {% endblock %}

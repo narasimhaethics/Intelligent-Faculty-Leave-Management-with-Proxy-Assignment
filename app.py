@@ -2,26 +2,33 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from config import Config
-from models import db, Users, FacultyDetails, FacultyTimetable, LeaveRequest #LeaveRequests, ProxyAssignment
+from models import db, Users, FacultyDetails, FacultyTimetable, LeaveRequest, ProxyAssignment #LeaveRequests, ProxyAssignment
 from datetime import datetime, timedelta
 import json
+from googleapiclient.discovery import build
+from google.oauth2 import service_account 
+from sqlalchemy import and_
+from flask_mail import Message
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+def get_available_faculties(day, slot):
+    occupied_faculty_ids = db.session.query(FacultyTimetable.faculty_id).filter(
+        and_(
+            FacultyTimetable.day_of_week == day,
+            getattr(FacultyTimetable, slot) != None  # Check if the faculty is occupied in this slot
+        )
+    ).subquery()
 
+    available_faculties = Users.query.join(FacultyDetails).filter(
+        ~FacultyDetails.id.in_(occupied_faculty_ids)
+    ).all()
 
-def check_timetable_conflicts(timetable, requested_dates):
-    conflicts = []
-    for day in requested_dates:
-        for entry in timetable:
-            if entry.day_of_week == day['weekday']:
-                # Check if any slots are occupied (replace `slot_X` with slot checking logic)
-                if entry.slot_1 or entry.slot_2 or entry.slot_3:
-                    conflicts.append(day)
-    return conflicts
+    return available_faculties
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -156,7 +163,85 @@ def track_application():
     print(leave_data)
     return render_template('track_application.html', leave_data=leave_data)
 
+@app.route('/admin/leave_requests')
+@login_required
+def view_leave_requests():
+    leave_requests = db.session.query(LeaveRequest, FacultyDetails, Users).join(
+        FacultyDetails, LeaveRequest.faculty_id == FacultyDetails.id
+    ).join(
+        Users, FacultyDetails.user_id == Users.id
+    ).all()
 
+    # Render the template and pass `get_available_faculties` function to context
+    return render_template(
+        'admin_leave_requests.html',
+        leave_requests=leave_requests,
+        get_available_faculties=get_available_faculties  # Pass function here
+    )
+
+
+# Initialize Google Calendar API
+def get_google_calendar_service():
+    credentials = service_account.Credentials.from_service_account_file('path/to/credentials.json', scopes=['https://www.googleapis.com/auth/calendar'])
+    return build('calendar', 'v3', credentials=credentials)
+
+@app.route('/admin/leave_requests/<int:leave_id>/proxy_assignments', methods=['POST'])
+@login_required
+
+def assign_proxy(leave_id):
+    leave_request = LeaveRequest.query.get_or_404(leave_id)
+    action = request.form.get('action')
+    
+    if action == "reject":
+        leave_request.status = "Rejected"
+        db.session.commit()
+        flash("Leave request has been rejected.", "warning")
+        return redirect(url_for('view_leave_requests'))
+    
+    proxies = request.form.to_dict(flat=True)
+    proxies.pop("action", None)  # Remove action from proxies dictionary
+
+    calendar_service = get_google_calendar_service()
+
+    for slot, proxy_faculty_id in proxies.items():
+        if proxy_faculty_id:
+            slot_time, slot_date = slot.split(';')
+            proxy_assignment = ProxyAssignment(
+                leave_request_id=leave_id,
+                faculty_id=leave_request.faculty_id,
+                proxy_faculty_id=proxy_faculty_id,
+                slot_time=slot_time,
+                date=slot_date
+            )
+            db.session.add(proxy_assignment)
+
+            # Send email to the proxy faculty
+            proxy_faculty = Users.query.get(proxy_faculty_id)
+            msg = Message(
+                "Proxy Alert",
+                sender="admin@example.com",
+                recipients=[proxy_faculty.emailid]
+            )
+            msg.body = f"You have been assigned as a proxy for {leave_request.faculty.user.fname} on {slot_date} during {slot_time}."
+            mail.send(msg)
+
+            # Add event to Google Calendar for proxy faculty
+            start_time = datetime.strptime(f"{slot_date} {slot_time.split('-')[0]}", "%Y-%m-%d %I:%M%p")
+            end_time = start_time + timedelta(hours=1)
+            event = {
+                'summary': 'Proxy Assignment',
+                'location': 'University Campus',
+                'description': f"Proxy assignment for {leave_request.faculty.user.fname}",
+                'start': {'dateTime': start_time.isoformat(), 'timeZone': 'Asia/Kolkata'},
+                'end': {'dateTime': end_time.isoformat(), 'timeZone': 'Asia/Kolkata'}
+            }
+            calendar_service.events().insert(calendarId='primary', body=event).execute()
+
+    leave_request.status = "Approved"
+    db.session.commit()
+
+    flash("Leave request approved and proxies assigned with calendar events.", "success")
+    return redirect(url_for('view_leave_requests'))
 
 
 

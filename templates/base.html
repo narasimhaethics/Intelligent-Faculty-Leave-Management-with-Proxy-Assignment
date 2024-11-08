@@ -35,11 +35,11 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="adminDashboardDropdown">
                                 <a class="dropdown-item" href="{{ url_for('add_faculty') }}">Add Faculty</a>
-                                <a class="dropdown-item" href="{{ url_for('allocate_subject') }}">Allocate Subject</a>
+                                
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ url_for('view_faculty_details') }}">View Faculty Details</a>
-                                <a class="dropdown-item" href="{{ url_for('faculty_timetable') }}">Faculty Timetable</a>
-                                <a class="dropdown-item" href="{{ url_for('apply_leave') }}">Leave Requests</a>
+                              
+                                <a class="dropdown-item" href="{{ url_for('view_leave_requests') }}">Leave Requests</a>
                             </div>
                         </li>
                     {% endif %}

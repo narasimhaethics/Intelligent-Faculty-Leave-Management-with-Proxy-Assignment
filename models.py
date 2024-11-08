@@ -76,3 +76,21 @@ class LeaveRequest(db.Model):
 
     def __repr__(self):
         return f"<LeaveRequest {self.faculty_id} - {self.leave_date}: {self.status}>"
+
+
+class ProxyAssignment(db.Model):
+    __tablename__ = 'proxy_assignments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    leave_request_id = db.Column(db.Integer, db.ForeignKey('leave_requests.id'), nullable=False)
+    faculty_id = db.Column(db.Integer, db.ForeignKey('faculty_details.id'), nullable=False)
+    proxy_faculty_id = db.Column(db.Integer, db.ForeignKey('faculty_details.id'), nullable=False)
+    slot_time = db.Column(db.String(50), nullable=False)  # Slot timing like "7:30 AM - 8:30 AM"
+    date = db.Column(db.Date, nullable=False)  # Specific date for the proxy assignment
+
+    leave_request = db.relationship('LeaveRequest', backref='proxy_assignments', lazy=True)
+    faculty = db.relationship('FacultyDetails', foreign_keys=[faculty_id])
+    proxy_faculty = db.relationship('FacultyDetails', foreign_keys=[proxy_faculty_id])
+
+    def __repr__(self):
+        return f"<ProxyAssignment {self.proxy_faculty_id} for {self.faculty_id} on {self.date} - {self.slot_time}>"
