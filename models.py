@@ -59,3 +59,20 @@ class FacultyTimetable(db.Model):
 
     def __repr__(self):
         return f"<FacultyTimetable for {self.faculty_name} on {self.day_of_week}>"
+    
+
+class LeaveRequest(db.Model):
+    __tablename__ = 'leave_requests'
+
+    id = db.Column(db.Integer, primary_key=True)
+    faculty_id = db.Column(db.Integer, db.ForeignKey('faculty_details.id'), nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    dates = db.Column(db.JSON, nullable=False)  # JSON to store dates and weekdays
+    status = db.Column(db.String(20), default="Pending")  # Options: "Pending", "Approved", "Rejected"
+    reason = db.Column(db.String(200), nullable=True)
+
+    faculty = db.relationship('FacultyDetails', backref='leave_requests', lazy=True)
+
+    def __repr__(self):
+        return f"<LeaveRequest Faculty: {self.faculty_id}, Status: {self.status}>"

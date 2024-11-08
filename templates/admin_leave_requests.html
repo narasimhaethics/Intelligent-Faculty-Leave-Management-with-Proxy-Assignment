@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Leave Requests</h2>
+
+    {% for request in leave_requests %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ request.faculty.user.fname }} {{ request.faculty.user.lname }}</h5>
+            <p class="card-text">Requested From: {{ request.start_date }} To: {{ request.end_date }}</p>
+            <p class="card-text">Status: {{ request.status }}</p>
+            <p class="card-text">Reason: {{ request.reason }}</p>
+            
+            <form method="POST">
+                <input type="hidden" name="leave_request_id" value="{{ request.id }}">
+                <button name="action" value="approve" class="btn btn-success">Approve</button>
+                <button name="action" value="reject" class="btn btn-danger">Reject</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

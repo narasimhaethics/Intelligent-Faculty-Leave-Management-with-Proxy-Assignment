@@ -1,15 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from config import Config
-from models import db, Users, FacultyDetails, FacultyTimetable #LeaveRequests, ProxyAssignment
-from datetime import datetime
+from models import db, Users, FacultyDetails, FacultyTimetable, LeaveRequest #LeaveRequests, ProxyAssignment
+from datetime import datetime, timedelta
+import json
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+
+def check_timetable_conflicts(timetable, requested_dates):
+    conflicts = []
+    for day in requested_dates:
+        for entry in timetable:
+            if entry.day_of_week == day['weekday']:
+                # Check if any slots are occupied (replace `slot_X` with slot checking logic)
+                if entry.slot_1 or entry.slot_2 or entry.slot_3:
+                    conflicts.append(day)
+    return conflicts
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -33,29 +45,155 @@ def login():
 @app.route('/faculty_dashboard')
 @login_required
 def faculty_dashboard():
-    if current_user.role != 'faculty':
-        return redirect(url_for('admin_dashboard'))
-    leave_requests = LeaveRequests.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard.html', leave_requests=leave_requests)
+    # Fetch the user's details
+    user = Users.query.get(current_user.id)
+    faculty = FacultyDetails.query.filter_by(user_id=user.id).first()
+    
+    if not faculty:
+        flash("Faculty details not found.", "danger")
+        return redirect(url_for('logout'))
+
+    # Fetch timetable for the faculty
+    timetable_entries = FacultyTimetable.query.filter_by(faculty_id=faculty.id).all()
+    
+    # Format timetable in a dictionary for easy display in HTML
+    timetable = {}
+    for entry in timetable_entries:
+        timetable[entry.day_of_week] = {
+            "slot_1": entry.slot_1,
+            "slot_2": entry.slot_2,
+            "slot_3": entry.slot_3,
+            "slot_4": entry.slot_4,
+            "slot_5": entry.slot_5,
+            "slot_6": entry.slot_6,
+        }
+    
+    return render_template('faculty_dashboard.html', user=user, faculty=faculty, timetable=timetable)
+
+@app.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+        
+        if new_password == confirm_password:
+            current_user.password = new_password  # Hash this in a real application
+            db.session.commit()
+            flash("Password updated successfully.", "success")
+        else:
+            flash("Passwords do not match.", "danger")
+    
+    return render_template('change_password.html')
+
+@app.route('/track_application')
+@login_required
+def track_application():
+    # Get all leave requests for the current user
+    leave_requests = LeaveRequest.query.filter_by(faculty_id=current_user.id).order_by(LeaveRequest.start_date.desc()).all()
+    return render_template('track_application.html', leave_requests=leave_requests)
+
+@app.route('/leave_history')
+@login_required
+def leave_history():
+    # Get all leave requests for the current user
+    leave_requests = LeaveRequest.query.filter_by(faculty_id=current_user.id).order_by(LeaveRequest.start_date.desc()).all()
+    return render_template('leave_history.html', leave_requests=leave_requests)
+
 
 @app.route('/leave_request', methods=['GET', 'POST'])
 @login_required
 def leave_request():
-    if current_user.role != 'faculty':
-        return redirect(url_for('admin_dashboard'))
     if request.method == 'POST':
-        start_date = request.form['start_date']
-        end_date = request.form['end_date']
-        leave_request = LeaveRequests(
-            user_id=current_user.id,
-            start_date=datetime.strptime(start_date, '%Y-%m-%d'),
-            end_date=datetime.strptime(end_date, '%Y-%m-%d')
+        faculty_id = request.form.get('faculty_id')
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        
+        if not (faculty_id and start_date and end_date):
+            flash('All fields are required', 'danger')
+            return redirect(url_for('leave_request'))
+
+        # Process dates to include weekdays
+        start_date_obj = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date_obj = datetime.strptime(end_date, '%Y-%m-%d')
+        date_list = []
+
+        current_date = start_date_obj
+        while current_date <= end_date_obj:
+            date_list.append({
+                'date': current_date.strftime('%Y-%m-%d'),
+                'weekday': current_date.strftime('%A')
+            })
+            current_date += timedelta(days=1)
+
+        # Create new leave request
+        leave_request = LeaveRequest(
+            faculty_id=faculty_id,
+            start_date=start_date,
+            end_date=end_date,
+            dates=date_list,
+            status='Pending'
         )
         db.session.add(leave_request)
         db.session.commit()
-        flash("Leave request submitted!")
-        return redirect(url_for('faculty_dashboard'))
-    return render_template('leave_request.html')
+        flash('Leave request submitted successfully', 'success')
+        return redirect(url_for('faculty_dashboard'))  # Redirect to faculty dashboard or other page
+
+    # If GET request, render form with faculty data
+    faculty_id = 2  # Replace with current faculty's ID or query from session
+    faculty = FacultyDetails.query.get(faculty_id)
+    return render_template('leave_request.html', faculty=faculty)
+
+@app.route('/get_dates')
+def get_dates():
+    start_date_str = request.args.get('start_date')
+    end_date_str = request.args.get('end_date')
+
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+    dates = []
+
+    current_date = start_date
+    while current_date <= end_date:
+        dates.append({
+            'date': current_date.strftime('%Y-%m-%d'),
+            'weekday': current_date.strftime('%A')
+        })
+        current_date += timedelta(days=1)
+
+    return jsonify({'dates': dates})
+
+
+@app.route('/admin/leave_requests', methods=['GET', 'POST'])
+@login_required
+def admin_leave_requests():
+    leave_requests = LeaveRequest.query.filter_by(status="Pending").all()
+
+    if request.method == 'POST':
+        leave_request_id = request.form['leave_request_id']
+        action = request.form['action']  # 'approve' or 'reject'
+
+        # Fetch the leave request to update
+        leave_request = LeaveRequest.query.get(leave_request_id)
+
+        # Check faculty availability if approving the request
+        if action == 'approve':
+            faculty_timetable = FacultyTimetable.query.filter_by(faculty_id=leave_request.faculty_id).all()
+            conflicts = check_timetable_conflicts(faculty_timetable, leave_request.dates)
+
+            if conflicts:
+                flash("Cannot approve leave request; conflicting time slots found.", "danger")
+            else:
+                leave_request.status = "Approved"
+                flash("Leave request approved successfully!", "success")
+        else:
+            leave_request.status = "Rejected"
+            flash("Leave request rejected.", "warning")
+
+        db.session.commit()
+        return redirect(url_for('admin_leave_requests'))
+
+    return render_template('admin_leave_requests.html', leave_requests=leave_requests)
 
 @app.route('/admin_dashboard')
 @login_required
