@@ -63,11 +63,11 @@
                                     {% for slot in ['slot_1', 'slot_2', 'slot_3', 'slot_4', 'slot_5', 'slot_6'] %}
                                         <td>{{ slot }}</td>
                                         <td>
-                                            {% with available_faculties=get_available_faculties(day, slot) %}
+                                            {% with available_faculties=get_available_faculties(day, slot, leave_request.faculty_id) %}
                                                 <select class="form-control" name="proxy_{{ day }}_{{ slot }}">
                                                     <option value="">Select Proxy</option>
-                                                    {% for faculty in available_faculties %}
-                                                        <option value="{{ faculty.id }}">{{ faculty.fname }} {{ faculty.lname }}</option>
+                                                    {% for available_faculty in available_faculties %}
+                                                        <option value="{{ available_faculty.id }}">{{ available_faculty.fname }} {{ available_faculty.lname }}</option>
                                                     {% endfor %}
                                                 </select>
                                             {% endwith %}
